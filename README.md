@@ -226,15 +226,71 @@ pnpm payload migrate
 
 This command will check for any migrations that have not yet been run and try to run them and it will keep a record of migrations that have been run in the database.
 
+### MongoDB Setup
+
+This template uses MongoDB as the database. You have two options for running MongoDB:
+
+#### Option 1: Using Docker Compose (Recommended)
+
+The easiest way to run MongoDB is using Docker Compose, which is already configured in `docker-compose.yml`:
+
+1. Make sure Docker is installed and running on your machine
+2. Start MongoDB using Docker Compose:
+   ```bash
+   docker-compose up mongo -d
+   ```
+   This will start MongoDB in the background on port `27017`
+
+3. Your `.env` file should have:
+   ```env
+   DATABASE_URI=mongodb://mongo:27017/labplusarts-b2b-landing-page
+   ```
+   (This is already configured if you're running everything with Docker Compose)
+
+#### Option 2: Running MongoDB Locally
+
+If you prefer to run MongoDB locally without Docker:
+
+1. Install MongoDB locally following the [official MongoDB installation guide](https://www.mongodb.com/docs/manual/installation/)
+2. Start MongoDB service (the command varies by OS)
+3. Update your `.env` file to use:
+   ```env
+   DATABASE_URI=mongodb://127.0.0.1:27017/labplusarts-b2b-landing-page
+   ```
+
+#### Verify MongoDB Connection
+
+To verify MongoDB is running, you can use:
+```bash
+# Check if MongoDB container is running (if using Docker)
+docker-compose ps
+
+# Or test connection using MongoDB shell (if installed locally)
+mongosh mongodb://127.0.0.1:27017
+```
+
 ### Docker
 
 Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
 
 1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-1. Next run `docker-compose up`
-1. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
+2. Start MongoDB first:
+   ```bash
+   docker-compose up mongo -d
+   ```
+3. Next run the full stack:
+   ```bash
+   docker-compose up
+   ```
+   Or run just the Payload service (if MongoDB is already running):
+   ```bash
+   docker-compose up payload
+   ```
+4. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
 
 That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+
+**Note:** The `docker-compose.yml` is configured to use `pnpm` and will automatically install dependencies and start the development server.
 
 ### Seed
 
