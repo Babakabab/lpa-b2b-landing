@@ -92,6 +92,14 @@ const config = {
         success: 'hsl(var(--success))',
         error: 'hsl(var(--error))',
         warning: 'hsl(var(--warning))',
+        // Brand colors
+        brand: {
+          'berkeley-blue': '#1B365D',
+          'true-blue': '#0066CC',
+          'cambridge-blue': '#7BA98A',
+          'anti-flash-white': '#F5F7FA',
+          'paynes-gray': '#4A5568',
+        },
       },
       fontFamily: {
         mono: ['var(--font-geist-mono)'],

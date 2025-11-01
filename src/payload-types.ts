@@ -76,12 +76,18 @@ export interface Config {
     forms: Form;
     'form-submissions': FormSubmission;
     search: Search;
+    'payload-kv': PayloadKv;
     'payload-jobs': PayloadJob;
+    'payload-folders': FolderInterface;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
     'payload-migrations': PayloadMigration;
   };
-  collectionsJoins: {};
+  collectionsJoins: {
+    'payload-folders': {
+      documentsAndFolders: 'payload-folders' | 'media';
+    };
+  };
   collectionsSelect: {
     pages: PagesSelect<false> | PagesSelect<true>;
     posts: PostsSelect<false> | PostsSelect<true>;
@@ -92,7 +98,9 @@ export interface Config {
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
     search: SearchSelect<false> | SearchSelect<true>;
+    'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-jobs': PayloadJobsSelect<false> | PayloadJobsSelect<true>;
+    'payload-folders': PayloadFoldersSelect<false> | PayloadFoldersSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
     'payload-migrations': PayloadMigrationsSelect<false> | PayloadMigrationsSelect<true>;
@@ -108,7 +116,7 @@ export interface Config {
     header: HeaderSelect<false> | HeaderSelect<true>;
     footer: FooterSelect<false> | FooterSelect<true>;
   };
-  locale: null;
+  locale: 'nl' | 'en';
   user: User & {
     collection: 'users';
   };
@@ -191,7 +199,22 @@ export interface Page {
       | null;
     media?: (string | null) | Media;
   };
-  layout: (CallToActionBlock | ContentBlock | MediaBlock | ArchiveBlock | FormBlock)[];
+  layout: (
+    | B2BHeroBlock
+    | HowItWorksBlock
+    | PainPointsSolutionsBlock
+    | CoverageHighlightBlock
+    | ClinicalGovernanceBlock
+    | SecurityComplianceBlock
+    | IntegrationsListBlock
+    | PricingFramingBlock
+    | ProofStripBlock
+    | CallToActionBlock
+    | ContentBlock
+    | MediaBlock
+    | ArchiveBlock
+    | FormBlock
+  )[];
   meta?: {
     title?: string | null;
     /**
@@ -282,6 +305,7 @@ export interface Media {
     };
     [k: string]: unknown;
   } | null;
+  folder?: (string | null) | FolderInterface;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -354,6 +378,32 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-folders".
+ */
+export interface FolderInterface {
+  id: string;
+  name: string;
+  folder?: (string | null) | FolderInterface;
+  documentsAndFolders?: {
+    docs?: (
+      | {
+          relationTo?: 'payload-folders';
+          value: string | FolderInterface;
+        }
+      | {
+          relationTo?: 'media';
+          value: string | Media;
+        }
+    )[];
+    hasNextPage?: boolean;
+    totalDocs?: number;
+  };
+  folderType?: 'media'[] | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "categories".
  */
 export interface Category {
@@ -400,6 +450,489 @@ export interface User {
       }[]
     | null;
   password?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "B2BHeroBlock".
+ */
+export interface B2BHeroBlock {
+  /**
+   * Main headline (H1)
+   */
+  heading: string;
+  /**
+   * Supporting text below the headline
+   */
+  subheading: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Primary call-to-action button
+   */
+  primaryCTA: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null);
+    url?: string | null;
+    label: string;
+    /**
+     * Choose how the link should be rendered.
+     */
+    appearance?: ('default' | 'outline') | null;
+  };
+  /**
+   * Secondary call-to-action button
+   */
+  secondaryCTA: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null);
+    url?: string | null;
+    label: string;
+    /**
+     * Choose how the link should be rendered.
+     */
+    appearance?: ('default' | 'outline') | null;
+  };
+  /**
+   * Trust indicators (e.g., "NEN 7510/7512/7513 aligned")
+   */
+  trustBadges?:
+    | {
+        text: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'b2bHero';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HowItWorksBlock".
+ */
+export interface HowItWorksBlock {
+  /**
+   * Section heading
+   */
+  heading: string;
+  /**
+   * Exactly 3 steps describing the process
+   */
+  steps: {
+    icon: 'clipboard' | 'activity' | 'trending';
+    /**
+     * Step title
+     */
+    title: string;
+    /**
+     * Step description
+     */
+    description: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'howItWorks';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PainPointsSolutionsBlock".
+ */
+export interface PainPointsSolutionsBlock {
+  /**
+   * Section heading (e.g., "Why clinics switch")
+   */
+  heading: string;
+  /**
+   * Pain points and their solutions
+   */
+  items: {
+    /**
+     * The problem/pain point
+     */
+    painPoint: string;
+    /**
+     * The solution your platform provides
+     */
+    solution: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'painPointsSolutions';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoverageHighlightBlock".
+ */
+export interface CoverageHighlightBlock {
+  /**
+   * Section heading
+   */
+  heading: string;
+  /**
+   * Main statistic (e.g., "750+")
+   */
+  mainStat: string;
+  /**
+   * Label for main stat (e.g., "priklocaties in NL")
+   */
+  mainStatLabel: string;
+  /**
+   * Supporting description
+   */
+  description: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  /**
+   * Small metric chips (e.g., reduced no-shows, increased adherence)
+   */
+  statChips?:
+    | {
+        icon: 'trending-down' | 'trending-up' | 'clock';
+        /**
+         * Chip label (e.g., "↓ no-shows")
+         */
+        label: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'coverageHighlight';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ClinicalGovernanceBlock".
+ */
+export interface ClinicalGovernanceBlock {
+  /**
+   * Section heading (e.g., "Clinically governed ordering")
+   */
+  heading: string;
+  /**
+   * Optional section description
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Clinical governance features
+   */
+  features: {
+    icon: 'file-check' | 'shield' | 'alert-circle' | 'user-check';
+    /**
+     * Feature title
+     */
+    title: string;
+    /**
+     * Feature description
+     */
+    description: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    };
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'clinicalGovernance';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SecurityComplianceBlock".
+ */
+export interface SecurityComplianceBlock {
+  /**
+   * Section heading (e.g., "AVG & NEN by design")
+   */
+  heading: string;
+  /**
+   * Optional section description
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Security and compliance features
+   */
+  features: {
+    icon: 'lock' | 'server' | 'file-text' | 'users';
+    /**
+     * Feature title
+     */
+    title: string;
+    /**
+     * Feature description (plain text)
+     */
+    description: string;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'securityCompliance';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IntegrationsListBlock".
+ */
+export interface IntegrationsListBlock {
+  /**
+   * Section heading (e.g., "Werkt met uw stack")
+   */
+  heading: string;
+  /**
+   * Optional section description
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * List of integrations
+   */
+  integrations: {
+    icon: 'database' | 'file-text' | 'pen-tool' | 'mail' | 'webhook' | 'link';
+    /**
+     * Integration name
+     */
+    name: string;
+    /**
+     * Optional short description
+     */
+    description?: string | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'integrationsList';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingFramingBlock".
+ */
+export interface PricingFramingBlock {
+  /**
+   * Section heading (e.g., "Vervang 2-3 tools met één platform")
+   */
+  heading: string;
+  /**
+   * Optional description
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Key value points (e.g., features replaced, transparency)
+   */
+  valuePoints: {
+    /**
+     * Value point text
+     */
+    text: string;
+    id?: string | null;
+  }[];
+  /**
+   * Link to pricing page or contact
+   */
+  cta: {
+    type?: ('reference' | 'custom') | null;
+    newTab?: boolean | null;
+    reference?:
+      | ({
+          relationTo: 'pages';
+          value: string | Page;
+        } | null)
+      | ({
+          relationTo: 'posts';
+          value: string | Post;
+        } | null);
+    url?: string | null;
+    label: string;
+    /**
+     * Choose how the link should be rendered.
+     */
+    appearance?: ('default' | 'outline') | null;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'pricingFraming';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProofStripBlock".
+ */
+export interface ProofStripBlock {
+  /**
+   * Optional section heading (e.g., "Trusted by leading clinics")
+   */
+  heading?: string | null;
+  /**
+   * Client/partner logos
+   */
+  logos?:
+    | {
+        /**
+         * Company logo (will be displayed in grayscale)
+         */
+        logo?: (string | null) | Media;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Customer testimonials
+   */
+  testimonials?:
+    | {
+        /**
+         * Testimonial quote
+         */
+        quote: string;
+        /**
+         * Optional metric (e.g., "−25% no-shows in 60 dagen")
+         */
+        metric?: string | null;
+        /**
+         * Author name
+         */
+        author?: string | null;
+        /**
+         * Company name
+         */
+        company?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'proofStrip';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -819,6 +1352,23 @@ export interface Search {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv".
+ */
+export interface PayloadKv {
+  id: string;
+  key: string;
+  data:
+    | {
+        [k: string]: unknown;
+      }
+    | unknown[]
+    | string
+    | number
+    | boolean
+    | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs".
  */
 export interface PayloadJob {
@@ -953,8 +1503,16 @@ export interface PayloadLockedDocument {
         value: string | Search;
       } | null)
     | ({
+        relationTo: 'payload-kv';
+        value: string | PayloadKv;
+      } | null)
+    | ({
         relationTo: 'payload-jobs';
         value: string | PayloadJob;
+      } | null)
+    | ({
+        relationTo: 'payload-folders';
+        value: string | FolderInterface;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1029,6 +1587,15 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
+        b2bHero?: T | B2BHeroBlockSelect<T>;
+        howItWorks?: T | HowItWorksBlockSelect<T>;
+        painPointsSolutions?: T | PainPointsSolutionsBlockSelect<T>;
+        coverageHighlight?: T | CoverageHighlightBlockSelect<T>;
+        clinicalGovernance?: T | ClinicalGovernanceBlockSelect<T>;
+        securityCompliance?: T | SecurityComplianceBlockSelect<T>;
+        integrationsList?: T | IntegrationsListBlockSelect<T>;
+        pricingFraming?: T | PricingFramingBlockSelect<T>;
+        proofStrip?: T | ProofStripBlockSelect<T>;
         cta?: T | CallToActionBlockSelect<T>;
         content?: T | ContentBlockSelect<T>;
         mediaBlock?: T | MediaBlockSelect<T>;
@@ -1048,6 +1615,198 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "B2BHeroBlock_select".
+ */
+export interface B2BHeroBlockSelect<T extends boolean = true> {
+  heading?: T;
+  subheading?: T;
+  primaryCTA?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        appearance?: T;
+      };
+  secondaryCTA?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        appearance?: T;
+      };
+  trustBadges?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "HowItWorksBlock_select".
+ */
+export interface HowItWorksBlockSelect<T extends boolean = true> {
+  heading?: T;
+  steps?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PainPointsSolutionsBlock_select".
+ */
+export interface PainPointsSolutionsBlockSelect<T extends boolean = true> {
+  heading?: T;
+  items?:
+    | T
+    | {
+        painPoint?: T;
+        solution?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CoverageHighlightBlock_select".
+ */
+export interface CoverageHighlightBlockSelect<T extends boolean = true> {
+  heading?: T;
+  mainStat?: T;
+  mainStatLabel?: T;
+  description?: T;
+  statChips?:
+    | T
+    | {
+        icon?: T;
+        label?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ClinicalGovernanceBlock_select".
+ */
+export interface ClinicalGovernanceBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  features?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "SecurityComplianceBlock_select".
+ */
+export interface SecurityComplianceBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  features?:
+    | T
+    | {
+        icon?: T;
+        title?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "IntegrationsListBlock_select".
+ */
+export interface IntegrationsListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  integrations?:
+    | T
+    | {
+        icon?: T;
+        name?: T;
+        description?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PricingFramingBlock_select".
+ */
+export interface PricingFramingBlockSelect<T extends boolean = true> {
+  heading?: T;
+  description?: T;
+  valuePoints?:
+    | T
+    | {
+        text?: T;
+        id?: T;
+      };
+  cta?:
+    | T
+    | {
+        type?: T;
+        newTab?: T;
+        reference?: T;
+        url?: T;
+        label?: T;
+        appearance?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "ProofStripBlock_select".
+ */
+export interface ProofStripBlockSelect<T extends boolean = true> {
+  heading?: T;
+  logos?:
+    | T
+    | {
+        logo?: T;
+        id?: T;
+      };
+  testimonials?:
+    | T
+    | {
+        quote?: T;
+        metric?: T;
+        author?: T;
+        company?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1171,6 +1930,7 @@ export interface PostsSelect<T extends boolean = true> {
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
   caption?: T;
+  folder?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1494,6 +2254,14 @@ export interface SearchSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-kv_select".
+ */
+export interface PayloadKvSelect<T extends boolean = true> {
+  key?: T;
+  data?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-jobs_select".
  */
 export interface PayloadJobsSelect<T extends boolean = true> {
@@ -1520,6 +2288,18 @@ export interface PayloadJobsSelect<T extends boolean = true> {
   queue?: T;
   waitUntil?: T;
   processing?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payload-folders_select".
+ */
+export interface PayloadFoldersSelect<T extends boolean = true> {
+  name?: T;
+  folder?: T;
+  documentsAndFolders?: T;
+  folderType?: T;
   updatedAt?: T;
   createdAt?: T;
 }

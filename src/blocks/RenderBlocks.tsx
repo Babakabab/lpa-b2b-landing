@@ -7,6 +7,15 @@ import { CallToActionBlock } from '@/blocks/CallToAction/Component'
 import { ContentBlock } from '@/blocks/Content/Component'
 import { FormBlock } from '@/blocks/Form/Component'
 import { MediaBlock } from '@/blocks/MediaBlock/Component'
+import { B2BHeroBlock } from '@/blocks/B2BHero/Component'
+import { HowItWorksBlock } from '@/blocks/HowItWorks/Component'
+import { PainPointsSolutionsBlock } from '@/blocks/PainPointsSolutions/Component'
+import { CoverageHighlightBlock } from '@/blocks/CoverageHighlight/Component'
+import { ClinicalGovernanceBlock } from '@/blocks/ClinicalGovernance/Component'
+import { SecurityComplianceBlock } from '@/blocks/SecurityCompliance/Component'
+import { IntegrationsListBlock } from '@/blocks/IntegrationsList/Component'
+import { PricingFramingBlock } from '@/blocks/PricingFraming/Component'
+import { ProofStripBlock } from '@/blocks/ProofStrip/Component'
 
 const blockComponents = {
   archive: ArchiveBlock,
@@ -14,6 +23,15 @@ const blockComponents = {
   cta: CallToActionBlock,
   formBlock: FormBlock,
   mediaBlock: MediaBlock,
+  b2bHero: B2BHeroBlock,
+  howItWorks: HowItWorksBlock,
+  painPointsSolutions: PainPointsSolutionsBlock,
+  coverageHighlight: CoverageHighlightBlock,
+  clinicalGovernance: ClinicalGovernanceBlock,
+  securityCompliance: SecurityComplianceBlock,
+  integrationsList: IntegrationsListBlock,
+  pricingFraming: PricingFramingBlock,
+  proofStrip: ProofStripBlock,
 }
 
 export const RenderBlocks: React.FC<{

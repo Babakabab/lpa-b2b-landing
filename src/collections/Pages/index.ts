@@ -7,6 +7,15 @@ import { CallToAction } from '../../blocks/CallToAction/config'
 import { Content } from '../../blocks/Content/config'
 import { FormBlock } from '../../blocks/Form/config'
 import { MediaBlock } from '../../blocks/MediaBlock/config'
+import { B2BHero } from '../../blocks/B2BHero/config'
+import { HowItWorks } from '../../blocks/HowItWorks/config'
+import { PainPointsSolutions } from '../../blocks/PainPointsSolutions/config'
+import { CoverageHighlight } from '../../blocks/CoverageHighlight/config'
+import { ClinicalGovernance } from '../../blocks/ClinicalGovernance/config'
+import { SecurityCompliance } from '../../blocks/SecurityCompliance/config'
+import { IntegrationsList } from '../../blocks/IntegrationsList/config'
+import { PricingFraming } from '../../blocks/PricingFraming/config'
+import { ProofStrip } from '../../blocks/ProofStrip/config'
 import { hero } from '@/heros/config'
 import { slugField } from 'payload'
 import { populatePublishedAt } from '../../hooks/populatePublishedAt'
@@ -72,7 +81,22 @@ export const Pages: CollectionConfig<'pages'> = {
             {
               name: 'layout',
               type: 'blocks',
-              blocks: [CallToAction, Content, MediaBlock, Archive, FormBlock],
+              blocks: [
+                B2BHero,
+                HowItWorks,
+                PainPointsSolutions,
+                CoverageHighlight,
+                ClinicalGovernance,
+                SecurityCompliance,
+                IntegrationsList,
+                PricingFraming,
+                ProofStrip,
+                CallToAction,
+                Content,
+                MediaBlock,
+                Archive,
+                FormBlock,
+              ],
               required: true,
               admin: {
                 initCollapsed: true,
