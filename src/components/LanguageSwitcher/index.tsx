@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useCallback, useEffect, useState } from 'react'
-import { usePathname, useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { Languages } from 'lucide-react'
 
 const LOCALES = [
@@ -11,7 +11,6 @@ const LOCALES = [
 
 export const LanguageSwitcher: React.FC = () => {
   const router = useRouter()
-  const pathname = usePathname()
   const [currentLocale, setCurrentLocale] = useState<'nl' | 'en'>('nl')
   const [isOpen, setIsOpen] = useState(false)
 
@@ -102,6 +101,3 @@ export const LanguageSwitcher: React.FC = () => {
     </div>
   )
 }
-
-
-

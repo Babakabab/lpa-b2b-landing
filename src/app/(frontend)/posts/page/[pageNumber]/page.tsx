@@ -6,6 +6,7 @@ import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
+import { getLocale } from '@/utilities/getLocale'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
 
@@ -20,6 +21,7 @@ type Args = {
 export default async function Page({ params: paramsPromise }: Args) {
   const { pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
+  const locale = await getLocale()
 
   const sanitizedPageNumber = Number(pageNumber)
 
@@ -31,6 +33,7 @@ export default async function Page({ params: paramsPromise }: Args) {
     limit: 12,
     page: sanitizedPageNumber,
     overrideAccess: false,
+    locale,
   })
 
   return (

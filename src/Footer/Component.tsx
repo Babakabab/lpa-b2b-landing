@@ -1,4 +1,5 @@
 import { getCachedGlobal } from '@/utilities/getGlobals'
+import { getLocale } from '@/utilities/getLocale'
 import Link from 'next/link'
 import React from 'react'
 
@@ -9,7 +10,8 @@ import { Logo } from '@/components/Logo/Logo'
 import { Shield, FileText, Users } from 'lucide-react'
 
 export async function Footer() {
-  const footerData: Footer = await getCachedGlobal('footer', 1)()
+  const locale = await getLocale()
+  const footerData: Footer = await getCachedGlobal('footer', 1, locale)()
 
   const navItems = footerData?.navItems || []
 
