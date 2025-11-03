@@ -1,7 +1,7 @@
 'use client'
 
-import React, { useCallback, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
+import React, { useCallback, useState } from 'react'
+import { usePathname, useRouter } from 'next/navigation'
 import { Languages } from 'lucide-react'
 
 const LOCALES = [
@@ -11,25 +11,44 @@ const LOCALES = [
 
 export const LanguageSwitcher: React.FC = () => {
   const router = useRouter()
-  const [currentLocale, setCurrentLocale] = useState<'nl' | 'en'>('nl')
+  const pathname = usePathname()
   const [isOpen, setIsOpen] = useState(false)
 
-  useEffect(() => {
-    // Get stored locale or default to nl
-    const stored = localStorage.getItem('locale') || 'nl'
-    setCurrentLocale(stored as 'nl' | 'en')
-  }, [])
+  // Extract current locale from pathname
+  const currentLocale = pathname?.startsWith('/nl')
+    ? 'nl'
+    : pathname?.startsWith('/en')
+      ? 'en'
+      : 'nl'
 
   const switchLocale = useCallback(
     (newLocale: 'nl' | 'en') => {
-      setCurrentLocale(newLocale)
-      localStorage.setItem('locale', newLocale)
+      if (!pathname) return
+
+      // Replace the locale in the pathname
+      let newPathname = pathname
+
+      // Remove the current locale prefix if it exists
+      if (pathname.startsWith('/nl')) {
+        newPathname = pathname.replace(/^\/nl/, '')
+      } else if (pathname.startsWith('/en')) {
+        newPathname = pathname.replace(/^\/en/, '')
+      }
+
+      // Ensure there's a leading slash
+      if (!newPathname.startsWith('/')) {
+        newPathname = '/' + newPathname
+      }
+
+      // Add the new locale prefix
+      newPathname = `/${newLocale}${newPathname === '/' ? '' : newPathname}`
+
       setIsOpen(false)
 
-      // Reload to apply new locale
-      router.refresh()
+      // Navigate to the new locale URL
+      router.push(newPathname)
     },
-    [router],
+    [pathname, router],
   )
 
   const handleKeyDown = useCallback(

@@ -1,17 +1,24 @@
-import { getCachedGlobal } from '@/utilities/getGlobals'
-import { getLocale } from '@/utilities/getLocale'
+'use client'
 import Link from 'next/link'
-import React from 'react'
+import { usePathname } from 'next/navigation'
+import React, { use } from 'react'
 
-import type { Footer } from '@/payload-types'
+import type { Footer as FooterType } from '@/payload-types'
 
 import { CMSLink } from '@/components/Link'
 import { Logo } from '@/components/Logo/Logo'
 import { Shield, FileText, Users } from 'lucide-react'
 
-export async function Footer() {
-  const locale = await getLocale()
-  const footerData: Footer = await getCachedGlobal('footer', 1, locale)()
+export function Footer({ footerDataPromise }: { footerDataPromise: Promise<FooterType> }) {
+  const footerData = use(footerDataPromise)
+  const pathname = usePathname()
+
+  // Extract current locale from pathname
+  const currentLocale = pathname?.startsWith('/nl')
+    ? 'nl'
+    : pathname?.startsWith('/en')
+      ? 'en'
+      : 'nl'
 
   const navItems = footerData?.navItems || []
 
@@ -21,7 +28,7 @@ export async function Footer() {
         <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-4">
           {/* Logo & Company */}
           <div>
-            <Link className="mb-4 inline-block" href="/">
+            <Link className="mb-4 inline-block" href={`/${currentLocale}`}>
               <Logo />
             </Link>
             <p className="text-sm text-white/80">
@@ -50,28 +57,28 @@ export async function Footer() {
             </h3>
             <nav className="flex flex-col gap-2">
               <Link
-                href="/privacy"
+                href={`/${currentLocale}/privacy`}
                 className="flex items-center gap-2 text-sm text-white/80 hover:text-white"
               >
                 <Shield className="h-4 w-4" aria-hidden="true" />
                 <span>Privacyverklaring</span>
               </Link>
               <Link
-                href="/dpa"
+                href={`/${currentLocale}/dpa`}
                 className="flex items-center gap-2 text-sm text-white/80 hover:text-white"
               >
                 <FileText className="h-4 w-4" aria-hidden="true" />
                 <span>DPA / Verwerkersovereenkomst</span>
               </Link>
               <Link
-                href="/dpia"
+                href={`/${currentLocale}/dpia`}
                 className="flex items-center gap-2 text-sm text-white/80 hover:text-white"
               >
                 <FileText className="h-4 w-4" aria-hidden="true" />
                 <span>DPIA Samenvatting</span>
               </Link>
               <Link
-                href="/subprocessors"
+                href={`/${currentLocale}/subprocessors`}
                 className="flex items-center gap-2 text-sm text-white/80 hover:text-white"
               >
                 <Users className="h-4 w-4" aria-hidden="true" />

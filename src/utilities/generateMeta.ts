@@ -21,14 +21,26 @@ const getImageURL = (image?: Media | Config['db']['defaultIDType'] | null) => {
 
 export const generateMeta = async (args: {
   doc: Partial<Page> | Partial<Post> | null
+  locale?: 'nl' | 'en'
 }): Promise<Metadata> => {
-  const { doc } = args
+  const { doc, locale = 'nl' } = args
 
   const ogImage = getImageURL(doc?.meta?.image)
 
   const title = doc?.meta?.title
     ? doc?.meta?.title + ' | Payload Website Template'
     : 'Payload Website Template'
+
+  const baseUrl = getServerSideURL()
+  const slug = Array.isArray(doc?.slug) ? doc?.slug.join('/') : doc?.slug || ''
+  const pathWithoutLocale = slug === 'home' ? '' : slug
+
+  // Generate language alternate URLs
+  const languages: Record<string, string> = {
+    nl: `${baseUrl}/nl${pathWithoutLocale ? `/${pathWithoutLocale}` : ''}`,
+    en: `${baseUrl}/en${pathWithoutLocale ? `/${pathWithoutLocale}` : ''}`,
+    'x-default': `${baseUrl}/nl${pathWithoutLocale ? `/${pathWithoutLocale}` : ''}`, // Default to Dutch
+  }
 
   return {
     description: doc?.meta?.description,
@@ -42,8 +54,12 @@ export const generateMeta = async (args: {
           ]
         : undefined,
       title,
-      url: Array.isArray(doc?.slug) ? doc?.slug.join('/') : '/',
+      url: `/${locale}${pathWithoutLocale ? `/${pathWithoutLocale}` : ''}`,
+      locale: locale === 'nl' ? 'nl_NL' : 'en_US',
     }),
     title,
+    alternates: {
+      languages,
+    },
   }
 }

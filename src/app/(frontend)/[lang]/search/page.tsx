@@ -4,26 +4,28 @@ import { CollectionArchive } from '@/components/CollectionArchive'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
-import { getLocale } from '@/utilities/getLocale'
 import { Search } from '@/search/Component'
 import PageClient from './page.client'
 import { CardPostData } from '@/components/Card'
 
 type Args = {
+  params: Promise<{
+    lang: 'nl' | 'en'
+  }>
   searchParams: Promise<{
     q: string
   }>
 }
-export default async function Page({ searchParams: searchParamsPromise }: Args) {
+export default async function Page({ params, searchParams: searchParamsPromise }: Args) {
+  const { lang } = await params
   const { q: query } = await searchParamsPromise
   const payload = await getPayload({ config: configPromise })
-  const locale = await getLocale()
 
   const posts = await payload.find({
     collection: 'search',
     depth: 1,
     limit: 12,
-    locale,
+    locale: lang,
     select: {
       title: true,
       slug: true,

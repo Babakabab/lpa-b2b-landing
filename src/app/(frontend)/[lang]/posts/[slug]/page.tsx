@@ -12,44 +12,49 @@ import type { Post } from '@/payload-types'
 
 import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
-import { getLocale } from '@/utilities/getLocale'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const posts = await payload.find({
-    collection: 'posts',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
+  const locales = ['nl', 'en'] as const
+  const params: Array<{ lang: 'nl' | 'en'; slug: string }> = []
 
-  const params = posts.docs.map(({ slug }) => {
-    return { slug }
-  })
+  for (const lang of locales) {
+    const posts = await payload.find({
+      collection: 'posts',
+      draft: false,
+      limit: 1000,
+      overrideAccess: false,
+      pagination: false,
+      locale: lang,
+      select: {
+        slug: true,
+      },
+    })
+
+    posts.docs.forEach(({ slug }) => {
+      params.push({ lang, slug })
+    })
+  }
 
   return params
 }
 
 type Args = {
   params: Promise<{
+    lang: 'nl' | 'en'
     slug?: string
   }>
 }
 
 export default async function Post({ params: paramsPromise }: Args) {
   const { isEnabled: draft } = await draftMode()
-  const { slug = '' } = await paramsPromise
-  const locale = await getLocale()
+  const { lang, slug = '' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const url = '/posts/' + decodedSlug
-  const post = await queryPostBySlug({ slug: decodedSlug, locale })
+  const url = `/${lang}/posts/${decodedSlug}`
+  const post = await queryPostBySlug({ slug: decodedSlug, locale: lang })
 
   if (!post) return <PayloadRedirects url={url} />
 
@@ -80,13 +85,12 @@ export default async function Post({ params: paramsPromise }: Args) {
 }
 
 export async function generateMetadata({ params: paramsPromise }: Args): Promise<Metadata> {
-  const { slug = '' } = await paramsPromise
-  const locale = await getLocale()
+  const { lang, slug = '' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const post = await queryPostBySlug({ slug: decodedSlug, locale })
+  const post = await queryPostBySlug({ slug: decodedSlug, locale: lang })
 
-  return generateMeta({ doc: post })
+  return generateMeta({ doc: post, locale: lang })
 }
 
 const queryPostBySlug = cache(async ({ slug, locale }: { slug: string; locale: 'nl' | 'en' }) => {

@@ -1,6 +1,8 @@
+'use client'
 import { Button, type ButtonProps } from '@/components/ui/button'
 import { cn } from '@/utilities/ui'
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import React from 'react'
 
 import type { Page, Post } from '@/payload-types'
@@ -33,12 +35,28 @@ export const CMSLink: React.FC<CMSLinkType> = (props) => {
     url,
   } = props
 
-  const href =
+  const pathname = usePathname()
+
+  // Extract current locale from pathname
+  const currentLocale = pathname?.startsWith('/nl')
+    ? 'nl'
+    : pathname?.startsWith('/en')
+      ? 'en'
+      : 'nl'
+
+  let href =
     type === 'reference' && typeof reference?.value === 'object' && reference.value.slug
       ? `${reference?.relationTo !== 'pages' ? `/${reference?.relationTo}` : ''}/${
           reference.value.slug
         }`
       : url
+
+  // Add locale prefix to internal links (not external URLs)
+  if (href && !href.startsWith('http') && !href.startsWith('mailto:') && !href.startsWith('tel:')) {
+    // Remove leading slash if exists
+    const cleanHref = href.startsWith('/') ? href.substring(1) : href
+    href = `/${currentLocale}/${cleanHref}`
+  }
 
   if (!href) return null
 

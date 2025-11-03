@@ -6,7 +6,6 @@ import { Pagination } from '@/components/Pagination'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import React from 'react'
-import { getLocale } from '@/utilities/getLocale'
 import PageClient from './page.client'
 import { notFound } from 'next/navigation'
 
@@ -14,14 +13,14 @@ export const revalidate = 600
 
 type Args = {
   params: Promise<{
+    lang: 'nl' | 'en'
     pageNumber: string
   }>
 }
 
 export default async function Page({ params: paramsPromise }: Args) {
-  const { pageNumber } = await paramsPromise
+  const { lang, pageNumber } = await paramsPromise
   const payload = await getPayload({ config: configPromise })
-  const locale = await getLocale()
 
   const sanitizedPageNumber = Number(pageNumber)
 
@@ -33,7 +32,7 @@ export default async function Page({ params: paramsPromise }: Args) {
     limit: 12,
     page: sanitizedPageNumber,
     overrideAccess: false,
-    locale,
+    locale: lang,
   })
 
   return (
@@ -74,18 +73,22 @@ export async function generateMetadata({ params: paramsPromise }: Args): Promise
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
-  const { totalDocs } = await payload.count({
-    collection: 'posts',
-    overrideAccess: false,
-  })
+  const locales = ['nl', 'en'] as const
+  const params: Array<{ lang: 'nl' | 'en'; pageNumber: string }> = []
 
-  const totalPages = Math.ceil(totalDocs / 10)
+  for (const lang of locales) {
+    const { totalDocs } = await payload.count({
+      collection: 'posts',
+      overrideAccess: false,
+      locale: lang,
+    })
 
-  const pages: { pageNumber: string }[] = []
+    const totalPages = Math.ceil(totalDocs / 10)
 
-  for (let i = 1; i <= totalPages; i++) {
-    pages.push({ pageNumber: String(i) })
+    for (let i = 1; i <= totalPages; i++) {
+      params.push({ lang, pageNumber: String(i) })
+    }
   }
 
-  return pages
+  return params
 }
