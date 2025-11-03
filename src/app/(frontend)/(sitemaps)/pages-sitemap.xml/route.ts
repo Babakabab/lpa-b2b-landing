@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 
+const locales = ['nl', 'en'] as const
+
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
@@ -11,49 +13,72 @@ const getPagesSitemap = unstable_cache(
       process.env.VERCEL_PROJECT_PRODUCTION_URL ||
       'https://example.com'
 
-    const results = await payload.find({
-      collection: 'pages',
-      overrideAccess: false,
-      draft: false,
-      depth: 0,
-      limit: 1000,
-      pagination: false,
-      where: {
-        _status: {
-          equals: 'published',
-        },
-      },
-      select: {
-        slug: true,
-        updatedAt: true,
-      },
-    })
-
     const dateFallback = new Date().toISOString()
+    const sitemap: Array<{
+      loc: string
+      lastmod: string
+      alternateRefs?: Array<{ href: string; hreflang: string }>
+    }> = []
 
-    const defaultSitemap = [
-      {
-        loc: `${SITE_URL}/search`,
+    // Add default pages for each locale
+    for (const locale of locales) {
+      sitemap.push({
+        loc: `${SITE_URL}/${locale}/search`,
         lastmod: dateFallback,
-      },
-      {
-        loc: `${SITE_URL}/posts`,
+        alternateRefs: locales.map((lang) => ({
+          href: `${SITE_URL}/${lang}/search`,
+          hreflang: lang,
+        })),
+      })
+      sitemap.push({
+        loc: `${SITE_URL}/${locale}/posts`,
         lastmod: dateFallback,
-      },
-    ]
+        alternateRefs: locales.map((lang) => ({
+          href: `${SITE_URL}/${lang}/posts`,
+          hreflang: lang,
+        })),
+      })
+    }
 
-    const sitemap = results.docs
-      ? results.docs
-          .filter((page) => Boolean(page?.slug))
-          .map((page) => {
-            return {
-              loc: page?.slug === 'home' ? `${SITE_URL}/` : `${SITE_URL}/${page?.slug}`,
+    // Add pages for each locale
+    for (const locale of locales) {
+      const results = await payload.find({
+        collection: 'pages',
+        overrideAccess: false,
+        draft: false,
+        depth: 0,
+        limit: 1000,
+        pagination: false,
+        locale,
+        where: {
+          _status: {
+            equals: 'published',
+          },
+        },
+        select: {
+          slug: true,
+          updatedAt: true,
+        },
+      })
+
+      if (results.docs) {
+        for (const page of results.docs) {
+          if (page?.slug) {
+            const path = page.slug === 'home' ? '' : `/${page.slug}`
+            sitemap.push({
+              loc: `${SITE_URL}/${locale}${path}`,
               lastmod: page.updatedAt || dateFallback,
-            }
-          })
-      : []
+              alternateRefs: locales.map((lang) => ({
+                href: `${SITE_URL}/${lang}${path}`,
+                hreflang: lang,
+              })),
+            })
+          }
+        }
+      }
+    }
 
-    return [...defaultSitemap, ...sitemap]
+    return sitemap
   },
   ['pages-sitemap'],
   {
