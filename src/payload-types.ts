@@ -157,7 +157,82 @@ export interface Page {
   id: string;
   title: string;
   hero: {
-    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact';
+    type: 'none' | 'highImpact' | 'mediumImpact' | 'lowImpact' | 'b2bHero';
+    /**
+     * Main headline (H1)
+     */
+    heading?: string | null;
+    /**
+     * Supporting text below the headline
+     */
+    subheading?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    /**
+     * Primary call-to-action button
+     */
+    primaryCTA?: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null);
+      url?: string | null;
+      label: string;
+      /**
+       * Choose how the link should be rendered.
+       */
+      appearance?: ('default' | 'outline') | null;
+    };
+    /**
+     * Secondary call-to-action button
+     */
+    secondaryCTA?: {
+      type?: ('reference' | 'custom') | null;
+      newTab?: boolean | null;
+      reference?:
+        | ({
+            relationTo: 'pages';
+            value: string | Page;
+          } | null)
+        | ({
+            relationTo: 'posts';
+            value: string | Post;
+          } | null);
+      url?: string | null;
+      label: string;
+      /**
+       * Choose how the link should be rendered.
+       */
+      appearance?: ('default' | 'outline') | null;
+    };
+    /**
+     * Trust indicators (e.g., "NEN 7510/7512/7513 aligned")
+     */
+    trustBadges?:
+      | {
+          text: string;
+          id?: string | null;
+        }[]
+      | null;
     richText?: {
       root: {
         type: string;
@@ -200,7 +275,6 @@ export interface Page {
     media?: (string | null) | Media;
   };
   layout: (
-    | B2BHeroBlock
     | HowItWorksBlock
     | PainPointsSolutionsBlock
     | CoverageHighlightBlock
@@ -450,90 +524,6 @@ export interface User {
       }[]
     | null;
   password?: string | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "B2BHeroBlock".
- */
-export interface B2BHeroBlock {
-  /**
-   * Main headline (H1)
-   */
-  heading: string;
-  /**
-   * Supporting text below the headline
-   */
-  subheading: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  };
-  /**
-   * Primary call-to-action button
-   */
-  primaryCTA: {
-    type?: ('reference' | 'custom') | null;
-    newTab?: boolean | null;
-    reference?:
-      | ({
-          relationTo: 'pages';
-          value: string | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null);
-    url?: string | null;
-    label: string;
-    /**
-     * Choose how the link should be rendered.
-     */
-    appearance?: ('default' | 'outline') | null;
-  };
-  /**
-   * Secondary call-to-action button
-   */
-  secondaryCTA: {
-    type?: ('reference' | 'custom') | null;
-    newTab?: boolean | null;
-    reference?:
-      | ({
-          relationTo: 'pages';
-          value: string | Page;
-        } | null)
-      | ({
-          relationTo: 'posts';
-          value: string | Post;
-        } | null);
-    url?: string | null;
-    label: string;
-    /**
-     * Choose how the link should be rendered.
-     */
-    appearance?: ('default' | 'outline') | null;
-  };
-  /**
-   * Trust indicators (e.g., "NEN 7510/7512/7513 aligned")
-   */
-  trustBadges?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  id?: string | null;
-  blockName?: string | null;
-  blockType: 'b2bHero';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1566,6 +1556,34 @@ export interface PagesSelect<T extends boolean = true> {
     | T
     | {
         type?: T;
+        heading?: T;
+        subheading?: T;
+        primaryCTA?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        secondaryCTA?:
+          | T
+          | {
+              type?: T;
+              newTab?: T;
+              reference?: T;
+              url?: T;
+              label?: T;
+              appearance?: T;
+            };
+        trustBadges?:
+          | T
+          | {
+              text?: T;
+              id?: T;
+            };
         richText?: T;
         links?:
           | T
@@ -1587,7 +1605,6 @@ export interface PagesSelect<T extends boolean = true> {
   layout?:
     | T
     | {
-        b2bHero?: T | B2BHeroBlockSelect<T>;
         howItWorks?: T | HowItWorksBlockSelect<T>;
         painPointsSolutions?: T | PainPointsSolutionsBlockSelect<T>;
         coverageHighlight?: T | CoverageHighlightBlockSelect<T>;
@@ -1615,42 +1632,6 @@ export interface PagesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "B2BHeroBlock_select".
- */
-export interface B2BHeroBlockSelect<T extends boolean = true> {
-  heading?: T;
-  subheading?: T;
-  primaryCTA?:
-    | T
-    | {
-        type?: T;
-        newTab?: T;
-        reference?: T;
-        url?: T;
-        label?: T;
-        appearance?: T;
-      };
-  secondaryCTA?:
-    | T
-    | {
-        type?: T;
-        newTab?: T;
-        reference?: T;
-        url?: T;
-        label?: T;
-        appearance?: T;
-      };
-  trustBadges?:
-    | T
-    | {
-        text?: T;
-        id?: T;
-      };
-  id?: T;
-  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
