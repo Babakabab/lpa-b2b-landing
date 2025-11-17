@@ -143,10 +143,10 @@ If you prefer to run MongoDB locally without Docker:
    ```bash
    # macOS with Homebrew
    brew services start mongodb-community
-   
+
    # Linux
    sudo systemctl start mongod
-   
+
    # Windows
    net start MongoDB
    ```
