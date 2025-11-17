@@ -19,3 +19,17 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Sensitive environment files and credentials
+.env.local
+.env.*.local
+*.key
+*.pem
+.env.production
+credentials.json
+
+# IDE and OS
+.vscode/
+.idea/
+*.swp
+*.swo
