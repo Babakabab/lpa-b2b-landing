@@ -1,8 +1,9 @@
-version: '3'
+version: '3.8'
 
 services:
   payload:
     image: node:18-alpine
+    container_name: lpa-b2b-payload
     ports:
       - '3000:3000'
     volumes:
@@ -11,21 +12,51 @@ services:
     working_dir: /home/node/app/
     command: sh -c "npm install -g pnpm && pnpm install && pnpm dev"
     depends_on:
-      - mongo
+      mongo:
+        condition: service_started
     env_file:
       - .env
+    environment:
+      - NODE_ENV=development
+    networks:
+      - lpa-network
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 30s
 
   mongo:
     image: mongo:latest
+    container_name: lpa-b2b-mongo
     ports:
       - '27017:27017'
     command:
       - --storageEngine=wiredTiger
+      - --bind_ip=0.0.0.0
     volumes:
       - data:/data/db
+      - mongo-config:/data/configdb
     logging:
       driver: none
+    networks:
+      - lpa-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.runCommand({ ping: 1 })"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
 volumes:
   data:
+    driver: local
+  mongo-config:
+    driver: local
   node_modules:
+
+networks:
+  lpa-network:
+    driver: bridge
+

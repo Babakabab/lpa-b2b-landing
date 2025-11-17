@@ -27,6 +27,13 @@ Core features:
 
 To spin up this example locally, follow these steps:
 
+**📚 Setup Guides:**
+- **[SETUP_SUMMARY.md](./SETUP_SUMMARY.md)** - Quick reference & checklist
+- **[CREATE_ENV_FILE.md](./CREATE_ENV_FILE.md)** - How to create your `.env` file
+- **[MONGODB_SETUP.md](./MONGODB_SETUP.md)** - Complete MongoDB and Docker setup
+- **[ENV_SETUP.md](./ENV_SETUP.md)** - Environment variables configuration
+- **[DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md)** - Docker command reference
+
 ### Clone
 
 If you have not done so already, you need to have standalone copy of this repo on your machine. If you've already cloned this repo, skip to [Development](#development).
@@ -228,69 +235,59 @@ This command will check for any migrations that have not yet been run and try to
 
 ### MongoDB Setup
 
-This template uses MongoDB as the database. You have two options for running MongoDB:
+This template uses MongoDB as the database. See the [MONGODB_SETUP.md](./MONGODB_SETUP.md) guide for complete setup instructions.
 
-#### Option 1: Using Docker Compose (Recommended)
+**Quick start:**
 
-The easiest way to run MongoDB is using Docker Compose, which is already configured in `docker-compose.yml`:
+1. Create a `.env` file with:
+   ```env
+   DATABASE_URI=mongodb://mongo:27017/labplusarts-b2b-landing-page
+   PAYLOAD_SECRET=your-secret-key-change-in-production
+   ```
 
-1. Make sure Docker is installed and running on your machine
-2. Start MongoDB using Docker Compose:
+2. Start MongoDB with Docker:
    ```bash
    docker-compose up mongo -d
    ```
-   This will start MongoDB in the background on port `27017`
 
-3. Your `.env` file should have:
-   ```env
-   DATABASE_URI=mongodb://mongo:27017/labplusarts-b2b-landing-page
-   ```
-   (This is already configured if you're running everything with Docker Compose)
-
-#### Option 2: Running MongoDB Locally
-
-If you prefer to run MongoDB locally without Docker:
-
-1. Install MongoDB locally following the [official MongoDB installation guide](https://www.mongodb.com/docs/manual/installation/)
-2. Start MongoDB service (the command varies by OS)
-3. Update your `.env` file to use:
-   ```env
-   DATABASE_URI=mongodb://127.0.0.1:27017/labplusarts-b2b-landing-page
+3. Run the project:
+   ```bash
+   pnpm install
+   pnpm dev
    ```
 
-#### Verify MongoDB Connection
-
-To verify MongoDB is running, you can use:
-```bash
-# Check if MongoDB container is running (if using Docker)
-docker-compose ps
-
-# Or test connection using MongoDB shell (if installed locally)
-mongosh mongodb://127.0.0.1:27017
-```
+For detailed setup options (Docker, local MongoDB, or MongoDB Atlas), see [MONGODB_SETUP.md](./MONGODB_SETUP.md).
 
 ### Docker
 
-Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. To do so, follow these steps:
+Alternatively, you can use [Docker](https://www.docker.com) to spin up this template locally. For complete Docker and MongoDB setup instructions, see **[MONGODB_SETUP.md](./MONGODB_SETUP.md)**.
 
-1. Follow [steps 1 and 2 from above](#development), the docker-compose file will automatically use the `.env` file in your project root
-2. Start MongoDB first:
+Quick start:
+
+1. Create a `.env` file (see [ENV_SETUP.md](./ENV_SETUP.md) for details):
    ```bash
-   docker-compose up mongo -d
+   DATABASE_URI=mongodb://mongo:27017/labplusarts-b2b-landing-page
+   PAYLOAD_SECRET=your-secret-key-change-in-production
    ```
-3. Next run the full stack:
+
+2. Start the full stack:
    ```bash
    docker-compose up
    ```
-   Or run just the Payload service (if MongoDB is already running):
+   
+   Or start MongoDB only:
    ```bash
-   docker-compose up payload
+   docker-compose up mongo -d
+   pnpm install
+   pnpm dev
    ```
-4. Follow [steps 4 and 5 from above](#development) to login and create your first admin user
 
-That's it! The Docker instance will help you get up and running quickly while also standardizing the development environment across your teams.
+3. Follow on-screen instructions to create your first admin user
+4. Access the admin panel at `http://localhost:3000/admin`
 
 **Note:** The `docker-compose.yml` is configured to use `pnpm` and will automatically install dependencies and start the development server.
+
+For Docker commands reference, see **[DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md)**.
 
 ### Seed
 
